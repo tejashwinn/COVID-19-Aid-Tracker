@@ -61,6 +61,7 @@ void printTree();
 //Structure which holds the NGO data
 struct NgoInfo
 {
+    
     int count;                   //increased when duplicates are inserted to the tree
     double pinCode;              //Pincode of the NGO
     long uniqueID;               //Unique ID generated for a particular NGO
@@ -68,8 +69,10 @@ struct NgoInfo
     char address[300];           //Address of the NGO
     char ownerName[100];         //Owner Name of the NGO
     char contactInformation[50]; //Contact information of the NGO
+
     struct NgoInfo *left;        //left link for the tree
     struct NgoInfo *right;       //right link for the tree
+
 };
 
 //Root Node of the two trees
