@@ -15,7 +15,7 @@ void title();                               //Func to display the title of the p
 void press(int);                            //Func to display the press any key to continue
 void gotoXY(int, int);                      //Func to move the cursor to given coordinates
 void loading(int, int);                     //Func to display the loading text
-struct ngoinfo *printNgo(struct ngoinfo *); //Func to print the Ngo information passed
+struct NgoInfo *printNgo(struct NgoInfo *); //Func to print the Ngo information passed
 
 //Utility Functions
 long randomNumberGenerator();
@@ -38,28 +38,28 @@ int addNgo();
 void viewNgo();
 
 //Data Retrieval
-struct ngoinfo *createTree(int);
-struct ngoinfo *insert(struct ngoinfo *, int);
+struct NgoInfo *createTree(int);
+struct NgoInfo *insert(struct NgoInfo *, int);
 
 //BST Search Functions
-struct ngoinfo *searchParent();
-struct ngoinfo *search(struct ngoinfo *, double, int);
+struct NgoInfo *searchParent();
+struct NgoInfo *search(struct NgoInfo *, double, int);
 
 //BST Delete Functions
-struct ngoinfo *deleteNode(struct ngoinfo *, long);
-struct ngoinfo *deleteNodeParent2(struct ngoinfo *, long);
-struct ngoinfo *deleteNodeParent1();
+struct NgoInfo *deleteNode(struct NgoInfo *, long);
+struct NgoInfo *deleteNodeParent2(struct NgoInfo *, long);
+struct NgoInfo *deleteNodeParent1();
 
 //Stack Functions
 void push(long);
 long pop();
 
 //Adding the new data into DataBase
-void printDataToFile(FILE *, struct ngoinfo *);
+void printDataToFile(FILE *, struct NgoInfo *);
 void printTree();
 
 //Structure which holds the NGO data
-struct ngoinfo
+struct NgoInfo
 {
     int count;                   //increased when duplicates are inserted to the tree
     double pinCode;              //Pincode of the NGO
@@ -68,17 +68,17 @@ struct ngoinfo
     char address[300];           //Address of the NGO
     char ownerName[100];         //Owner Name of the NGO
     char contactInformation[50]; //Contact information of the NGO
-    struct ngoinfo *left;        //left link for the tree
-    struct ngoinfo *right;       //right link for the tree
+    struct NgoInfo *left;        //left link for the tree
+    struct NgoInfo *right;       //right link for the tree
 };
 
 //Root Node of the two trees
-struct ngoinfo *root = NULL;  //Root node for the search Tree
-struct ngoinfo *root2 = NULL; //Root node for the Deletion Tree
+struct NgoInfo *root = NULL;  //Root node for the search Tree
+struct NgoInfo *root2 = NULL; //Root node for the Deletion Tree
 
 //Files containing the database
 FILE *fptr1;
-char fname1[100] = "file1.txt"; //file which stores the NGO information
+char fname1[100] = "ngo_data.txt"; //file which stores the NGO information
 FILE *fptr2;
 char fname2[100] = "admin_log.txt"; //file which stores the admin log in information
 FILE *fptr3;
@@ -103,6 +103,7 @@ COORD coord = {0, 0}; //Intializing Coordinates of the Display
 
 int main()
 {
+    press(1);
     welcome();
     //opening all the files and closing them;if the files dont exist they will be created
     fptr1 = fopen(fname1, "a");
@@ -196,7 +197,7 @@ void loading(int n, int val)
     }
 }
 
-struct ngoinfo *printNgo(struct ngoinfo *temp)
+struct NgoInfo *printNgo(struct NgoInfo *temp)
 {
     printf("\n\tPIN CODE:        %.lf", temp->pinCode);
     printf("\n\tUnique ID:       %ld", temp->uniqueID);
@@ -442,17 +443,17 @@ int addNgo()
     int y;
     int i;
     char choice;
-    char temp_pin_code[10];
+    char tempPinCode[10];
     title();
     fptr1 = fopen(fname1, "a");
-    struct ngoinfo *temp;
-    temp = (struct ngoinfo *)malloc(sizeof(struct ngoinfo));
+    struct NgoInfo *temp;
+    temp = (struct NgoInfo *)malloc(sizeof(struct NgoInfo));
     gotoXY(36, 7);
     printf("Enter NIL if any information is not present");
     gotoXY(30, 9);
     printf("Enter the pin code:    ");
-    gets(temp_pin_code);
-    temp->pinCode = numberChecker(temp_pin_code, 1);
+    gets(tempPinCode);
+    temp->pinCode = numberChecker(tempPinCode, 1);
     gotoXY(30, 10);
     printf("Enter the NGO name:    ");
     fgets(temp->name, sizeof(temp->name), stdin);
@@ -512,8 +513,8 @@ void viewNgo()
     title();
     count = 0;
     printf("\nThe NGO details are:");
-    while ((fscanf(fptr1, "%ld\n%ld\n%s\n%s\n%s\n%s\n", 
-    &pin_code1, &unique_id1, name1, _address1, owner1, contact_info1) != EOF))
+    while ((fscanf(fptr1, "%ld\n%ld\n%s\n%s\n%s\n%s\n",
+                   &pin_code1, &unique_id1, name1, _address1, owner1, contact_info1) != EOF))
     {
         printf("\n%d\tPIN CODE:         %ld", ++count, pin_code1);
         printf("\n\tUnique ID:       %ld", unique_id1);
@@ -531,33 +532,29 @@ void viewNgo()
     getch();
 }
 
-struct ngoinfo *createTree(int option)
+struct NgoInfo *createTree(int option)
 {
     int i = 0;
     char choice;
-    double pin_code1;
-    long unique_id1;
-    char name1[100];
-    char _address1[300];
-    char owner1[200];
-    char contact_info1[200];
     fptr1 = fopen(fname1, "r+");
+    struct NgoInfo *read;
+    read = (struct NgoInfo *)(malloc(sizeof(struct NgoInfo)));
     if (fptr1 == NULL)
     {
-        printf("Unable to open the file :(");
+        printf("Unable to open the NGO data file :(");
         press(0);
         exit(0);
     }
-    struct ngoinfo *temp;
-    while ((fscanf(fptr1, "%lf\n%ld\n%s\n%s\n%s\n%s\n", &pin_code1, &unique_id1, name1, _address1, owner1, contact_info1) != EOF))
+    struct NgoInfo *temp;
+    while ((fscanf(fptr1, "%lf\n%ld\n%s\n%s\n%s\n%s\n", &read->pinCode, &read->uniqueID, read->name, read->address, read->ownerName, read->contactInformation) != EOF))
     {
-        temp = (struct ngoinfo *)malloc(sizeof(struct ngoinfo));
-        temp->pinCode = pin_code1;
-        temp->uniqueID = unique_id1;
-        strcpy(temp->name, name1);
-        strcpy(temp->address, _address1);
-        strcpy(temp->ownerName, owner1);
-        strcpy(temp->contactInformation, contact_info1);
+        temp = (struct NgoInfo *)malloc(sizeof(struct NgoInfo));
+        temp->pinCode = read->pinCode;
+        temp->uniqueID = read->uniqueID;
+        strcpy(temp->name, read->name);
+        strcpy(temp->address, read->address);
+        strcpy(temp->ownerName, read->ownerName);
+        strcpy(temp->contactInformation, read->contactInformation);
         insert(temp, option);
         i++;
     }
@@ -592,7 +589,7 @@ struct ngoinfo *createTree(int option)
     }
 }
 
-struct ngoinfo *insert(struct ngoinfo *temp, int option)
+struct NgoInfo *insert(struct NgoInfo *temp, int option)
 {
     switch (option)
     {
@@ -609,8 +606,8 @@ struct ngoinfo *insert(struct ngoinfo *temp, int option)
         }
         else
         {
-            struct ngoinfo *cur = root2;
-            struct ngoinfo *ptr = NULL;
+            struct NgoInfo *cur = root2;
+            struct NgoInfo *ptr = NULL;
             while (cur != NULL)
             {
                 ptr = cur;
@@ -651,8 +648,8 @@ struct ngoinfo *insert(struct ngoinfo *temp, int option)
         }
         else
         {
-            struct ngoinfo *cur = root;
-            struct ngoinfo *ptr = NULL;
+            struct NgoInfo *cur = root;
+            struct NgoInfo *ptr = NULL;
             while (cur != NULL)
             {
                 ptr = cur;
@@ -684,7 +681,7 @@ struct ngoinfo *insert(struct ngoinfo *temp, int option)
     }
 }
 
-struct ngoinfo *search(struct ngoinfo *root1, double s_ele, int option)
+struct NgoInfo *search(struct NgoInfo *root1, double s_ele, int option)
 {
     if (root1 != NULL)
     {
@@ -720,17 +717,17 @@ struct ngoinfo *search(struct ngoinfo *root1, double s_ele, int option)
     return root1;
 }
 
-struct ngoinfo *searchParent()
+struct NgoInfo *searchParent()
 {
     system("cls");
     title();
-    char temp_pin_code[10];
+    char tempPinCode[10];
     char choice;
     int i;
     double s_ele;
     printf("\n Enter the Pin Code: ");
-    gets(temp_pin_code);
-    s_ele = numberChecker(temp_pin_code, -1);
+    gets(tempPinCode);
+    s_ele = numberChecker(tempPinCode, -1);
     printf("\nSearching");
     loading(8, 150);
     printf("\n");
@@ -788,9 +785,9 @@ long pop()
     return temp;
 }
 
-struct ngoinfo *deleteNode(struct ngoinfo *root1, long s_ele)
+struct NgoInfo *deleteNode(struct NgoInfo *root1, long s_ele)
 {
-    struct ngoinfo *current = NULL, *pointer = NULL, *successor = NULL, *parent = NULL;
+    struct NgoInfo *current = NULL, *pointer = NULL, *successor = NULL, *parent = NULL;
     if (root1 == NULL)
         return root1;
     current = root1;
@@ -832,7 +829,7 @@ struct ngoinfo *deleteNode(struct ngoinfo *root1, long s_ele)
     return root1;
 }
 
-struct ngoinfo *deleteNodeParent2(struct ngoinfo *root1, long u_ele)
+struct NgoInfo *deleteNodeParent2(struct NgoInfo *root1, long u_ele)
 {
     char choice;
     do
@@ -860,7 +857,7 @@ struct ngoinfo *deleteNodeParent2(struct ngoinfo *root1, long u_ele)
     return NULL;
 }
 
-struct ngoinfo *deleteNodeParent1(struct ngoinfo *root1)
+struct NgoInfo *deleteNodeParent1(struct NgoInfo *root1)
 {
     int flag = 0;
     int i = top;
@@ -868,11 +865,11 @@ struct ngoinfo *deleteNodeParent1(struct ngoinfo *root1)
     long u_ele;
     long stack_ele;
     char choice;
-    char temp_pin_code[10];
+    char tempPinCode[10];
     title();
     printf("\nEnter the pin code to be deleted: ");
-    gets(temp_pin_code);
-    d_ele = numberChecker(temp_pin_code, 3);
+    gets(tempPinCode);
+    d_ele = numberChecker(tempPinCode, 3);
     bufferForSearchFun = 0;
     search(root, d_ele, -2);
     if (noDataFlag == 1)
@@ -921,12 +918,12 @@ long randomNumberGenerator()
     return number;
 }
 
-void printDataToFile(FILE *fptr1, struct ngoinfo *root1)
+void printDataToFile(FILE *fptr1, struct NgoInfo *root1)
 {
     if (root1 == NULL)
         return;
-    fprintf(fptr1, "\n%.lf\n%ld\n%s\n%s\n%s\n%s\n", 
-    root1->pinCode, root1->uniqueID, root1->name, root1->address, root1->ownerName, root1->contactInformation);
+    fprintf(fptr1, "\n%.lf\n%ld\n%s\n%s\n%s\n%s\n",
+            root1->pinCode, root1->uniqueID, root1->name, root1->address, root1->ownerName, root1->contactInformation);
     printDataToFile(fptr1, root1->left);
     printDataToFile(fptr1, root1->right);
 }
