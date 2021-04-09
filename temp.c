@@ -48,7 +48,7 @@ struct NgoInfo *search(struct NgoInfo *, double);
 //BST Delete Functions
 struct NgoInfo *deleteNode(struct NgoInfo *, long);
 struct NgoInfo *deleteNodeParent2(long, double);
-struct NgoInfo *deleteNodeParent1();
+struct NgoInfo *deleteNodeParent1(struct NgoInfo *);
 
 //New delete functions
 struct NgoInfo *tempDeleteSibling(struct NgoInfo *, long, double);
@@ -108,8 +108,8 @@ COORD coord = {0, 0}; //Intializing Coordinates of the Display
 
 int main()
 {
-      press(1);
-      welcome();
+      // press(1);
+      // welcome();
       //opening all the files and closing them;if the files dont exist they will be created
       fptr1 = fopen(fname1, "a");
       fclose(fptr1);
@@ -124,7 +124,8 @@ int main()
       createTree(-1);
       createTree(1);
       //Calls the Login function through which the user logins
-      logIn();
+      //logIn();
+      deleteNodeParent1(root);
       //deletes the root node of the functions
       free(root);
       free(root2);
@@ -375,7 +376,7 @@ void adminMainMenu(char *aname)
                   viewNgo();
                   break;
             case 52:
-                  deleteNodeParent1(root2);
+                  deleteNodeParent1(root);
                   break;
             case 53:
                   auditLog();
@@ -733,59 +734,89 @@ struct NgoInfo *searchParent()
       press(0);
       return NULL;
 }
-struct NgoInfo *tempDeleteSibling(struct NgoInfo *temp, long uniqueID, double pinCode)
-{
-      if (temp != NULL)
-      {
-            if (temp->pinCode == pinCode)
-            {
-                  pinCode = pinCode + 0.00001;
-                  return tempDeleteSibling(temp->right, uniqueID, pinCode);
-                  if (temp->uniqueID == uniqueID)
-                        return temp;
-            }
-            if (temp->pinCode < pinCode)
-            {
-                  return tempDeleteSibling(temp->right, uniqueID, pinCode);
-            }
-            else
-            {
-                  return tempDeleteSibling(temp->left, uniqueID, pinCode);
-            }
-      }
-      return temp;
-}
+
 struct NgoInfo *tempDeleteSibling2(struct NgoInfo *temp, long uniqueID, double pinCode)
 {
-      struct NgoInfo *current, *deletedStruct,*parrent;
+      long tempInt1, tempInt2;
+      struct NgoInfo *current, *deletedStruct, *parent, *successor;
       current = temp;
       deletedStruct = (struct NgoInfo *)malloc(sizeof(struct NgoInfo));
+
       while (current != NULL)
       {
-            
-            if (current->pinCode == pinCode)
+            parent = current;
+            tempInt1 = (int)current->pinCode;
+            tempInt2 = (int)pinCode;
+            if (tempInt1 == tempInt2)
             {
-                  pinCode = pinCode + 0.00001;
                   current = current->right;
-            
+                  
                   if (current->uniqueID == uniqueID)
+                  {
+                        printf("1");
                         break;
+                  }
             }
-            if (current->pinCode < pinCode)
+            else if (tempInt1 < tempInt2)
             {
                   current = current->right;
             }
-            else
+            else if (tempInt1 > tempInt2)
             {
                   current = current->left;
             }
       }
-      deletedStruct = current;
+      deletedStruct->pinCode = current->pinCode;
+      deletedStruct->uniqueID = current->uniqueID;
+      deletedStruct->count = current->count;
+      strcpy(deletedStruct->address, current->address);
+      strcpy(deletedStruct->name, current->name);
+      strcpy(deletedStruct->ownerName, current->ownerName);
+      strcpy(deletedStruct->contactInformation, current->contactInformation);
 
-      if (current->left == NULL && current->right == NULL)
+      if (deletedStruct->left == NULL && deletedStruct->right == NULL)
       {
             free(current);
-            printTree(deletedStruct);
+            printNgo(deletedStruct);
+            printTree();
+            return deletedStruct;
+      }
+      if (current->left == NULL)
+      {
+            if (parent->left == current)
+                  parent->left = current->right;
+            else
+                  parent->right = current->right;
+            free(current);
+            printTree();
+            return deletedStruct;
+      }
+      else if (current->right == NULL)
+      {
+            if (parent->left == current)
+                  parent->left = current->left;
+            else
+                  parent->right = current->left;
+            free(current);
+            printTree();
+            return deletedStruct;
+      }
+      else
+      {
+            successor = current->right;
+            while (successor->left != NULL)
+            {
+                  successor = successor->left;
+            }
+            current->pinCode = successor->pinCode;
+            current->uniqueID = successor->uniqueID;
+            current->count = successor->count;
+            strcpy(current->address, successor->address);
+            strcpy(current->name, successor->name);
+            strcpy(current->ownerName, successor->ownerName);
+            strcpy(current->contactInformation, successor->contactInformation);
+            tempDeleteSibling2(deletedStruct->right, successor->uniqueID, successor->pinCode);
+            printTree();
             return deletedStruct;
       }
 }
@@ -793,13 +824,15 @@ struct NgoInfo *tempDeleteSibling2(struct NgoInfo *temp, long uniqueID, double p
 struct NgoInfo *deleteNodeParent2(long uniqueID, double pinCode)
 {
       char choice;
+      struct NgoInfo *temp;
       do
       {
             printf("\nAre you sure that you want to delete the above NGO information?\n[Press Y\\N]");
             choice = getche();
             if (choice == 'y' || choice == 'Y')
             {
-                  tempDeleteSibling2(root, uniqueID, pinCode);
+                  temp = tempDeleteSibling2(root, uniqueID, pinCode);
+                  printNgo(temp);
                   break;
             }
             else if (choice == 'n' || choice == 'N')
@@ -883,7 +916,7 @@ double numberChecker(char *str, int option)
                               else if (option == -1)
                                     searchParent();
                               else if (option == 3)
-                                    deleteNodeParent1(root2);
+                                    deleteNodeParent1(root);
                               break;
                         }
                         else if (choice == 27)
@@ -1022,4 +1055,27 @@ char *replace(char *string, char to_replace, char replaced_by)
       }
       new_string[j] = '\0';
       return new_string;
+}
+
+struct NgoInfo *tempDeleteSibling(struct NgoInfo *temp, long uniqueID, double pinCode)
+{
+      if (temp != NULL)
+      {
+            if (temp->pinCode == pinCode)
+            {
+                  pinCode = pinCode + 0.00001;
+                  return tempDeleteSibling(temp->right, uniqueID, pinCode);
+                  if (temp->uniqueID == uniqueID)
+                        return temp;
+            }
+            if (temp->pinCode < pinCode)
+            {
+                  return tempDeleteSibling(temp->right, uniqueID, pinCode);
+            }
+            else
+            {
+                  return tempDeleteSibling(temp->left, uniqueID, pinCode);
+            }
+      }
+      return temp;
 }
