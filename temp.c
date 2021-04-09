@@ -733,57 +733,7 @@ struct NgoInfo *searchParent()
       press(0);
       return NULL;
 }
-
-char *replace(char *string, char to_replace, char replaced_by)
-{
-      char *new_string = (char *)calloc(300, sizeof(char));
-      int i, j = 0;
-      for (i = 0; i <= strlen(string); i++)
-      {
-            if (string[i] == to_replace)
-            {
-                  new_string[j] = replaced_by;
-                  j++;
-            }
-            else if (isalnum(string[i]) || ispunct(string[i]))
-            {
-                  new_string[j] = string[i];
-                  j++;
-            }
-            else
-            {
-                  new_string[j] = replaced_by;
-                  j++;
-            }
-      }
-      new_string[j] = '\0';
-      return new_string;
-}
-
-void push(long ele)
-{
-      if (top == size - 1)
-      {
-            size++;
-            stack = (long *)realloc(stack, size * sizeof(long));
-            push(ele);
-      }
-      else
-      {
-            top++;
-            stack[top] = ele;
-      }
-}
-
-long pop()
-{
-      long temp = stack[top];
-      top--;
-      return temp;
-}
-
 struct NgoInfo *tempDeleteSibling(struct NgoInfo *temp, long uniqueID, double pinCode)
-
 {
       if (temp != NULL)
       {
@@ -791,7 +741,7 @@ struct NgoInfo *tempDeleteSibling(struct NgoInfo *temp, long uniqueID, double pi
             {
                   pinCode = pinCode + 0.00001;
                   return tempDeleteSibling(temp->right, uniqueID, pinCode);
-                  if (temp->uniqueID = uniqueID)
+                  if (temp->uniqueID == uniqueID)
                         return temp;
             }
             if (temp->pinCode < pinCode)
@@ -805,6 +755,40 @@ struct NgoInfo *tempDeleteSibling(struct NgoInfo *temp, long uniqueID, double pi
       }
       return temp;
 }
+struct NgoInfo *tempDeleteSibling2(struct NgoInfo *temp, long uniqueID, double pinCode)
+{
+      struct NgoInfo *current, *deletedStruct,*parrent;
+      current = temp;
+      deletedStruct = (struct NgoInfo *)malloc(sizeof(struct NgoInfo));
+      while (current != NULL)
+      {
+            
+            if (current->pinCode == pinCode)
+            {
+                  pinCode = pinCode + 0.00001;
+                  current = current->right;
+            
+                  if (current->uniqueID == uniqueID)
+                        break;
+            }
+            if (current->pinCode < pinCode)
+            {
+                  current = current->right;
+            }
+            else
+            {
+                  current = current->left;
+            }
+      }
+      deletedStruct = current;
+
+      if (current->left == NULL && current->right == NULL)
+      {
+            free(current);
+            printTree(deletedStruct);
+            return deletedStruct;
+      }
+}
 
 struct NgoInfo *deleteNodeParent2(long uniqueID, double pinCode)
 {
@@ -815,7 +799,7 @@ struct NgoInfo *deleteNodeParent2(long uniqueID, double pinCode)
             choice = getche();
             if (choice == 'y' || choice == 'Y')
             {
-
+                  tempDeleteSibling2(root, uniqueID, pinCode);
                   break;
             }
             else if (choice == 'n' || choice == 'N')
@@ -836,6 +820,15 @@ struct NgoInfo *deleteNodeParent2(long uniqueID, double pinCode)
 
 struct NgoInfo *deleteNodeParent1(struct NgoInfo *root1)
 {
+      double tempPinCode;
+      double tempUniqueId;
+      printf("\nEnter the pin code of the NGO to be deleted: ");
+      scanf("%lf", &tempPinCode);
+      bufferForSearchFun = 0;
+      search(root, tempPinCode);
+      printf("\nEnter the unique ID from above list: ");
+      scanf("%ld", &tempUniqueId);
+      deleteNodeParent2(tempUniqueId, tempPinCode);
 }
 
 long randomNumberGenerator()
@@ -981,4 +974,52 @@ void auditLog()
                   break;
             }
       } while (1);
+}
+
+void push(long ele)
+{
+      if (top == size - 1)
+      {
+            size++;
+            stack = (long *)realloc(stack, size * sizeof(long));
+            push(ele);
+      }
+      else
+      {
+            top++;
+            stack[top] = ele;
+      }
+}
+
+long pop()
+{
+      long temp = stack[top];
+      top--;
+      return temp;
+}
+
+char *replace(char *string, char to_replace, char replaced_by)
+{
+      char *new_string = (char *)calloc(300, sizeof(char));
+      int i, j = 0;
+      for (i = 0; i <= strlen(string); i++)
+      {
+            if (string[i] == to_replace)
+            {
+                  new_string[j] = replaced_by;
+                  j++;
+            }
+            else if (isalnum(string[i]) || ispunct(string[i]))
+            {
+                  new_string[j] = string[i];
+                  j++;
+            }
+            else
+            {
+                  new_string[j] = replaced_by;
+                  j++;
+            }
+      }
+      new_string[j] = '\0';
+      return new_string;
 }
