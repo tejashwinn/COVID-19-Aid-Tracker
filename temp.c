@@ -43,12 +43,15 @@ struct NgoInfo *insert(struct NgoInfo *, int);
 
 //BST Search Functions
 struct NgoInfo *searchParent();
-struct NgoInfo *search(struct NgoInfo *, double, int);
+struct NgoInfo *search(struct NgoInfo *, double);
 
 //BST Delete Functions
 struct NgoInfo *deleteNode(struct NgoInfo *, long);
-struct NgoInfo *deleteNodeParent2(struct NgoInfo *, long);
+struct NgoInfo *deleteNodeParent2(long, double);
 struct NgoInfo *deleteNodeParent1();
+
+//New delete functions
+struct NgoInfo *tempDeleteSibling(struct NgoInfo *, long, double);
 
 //Stack Functions
 void push(long);
@@ -683,40 +686,32 @@ struct NgoInfo *insert(struct NgoInfo *temp, int option)
       }
 }
 
-struct NgoInfo *search(struct NgoInfo *root1, double s_ele, int option)
+struct NgoInfo *search(struct NgoInfo *temp, double searchElement)
 {
-      if (root1 != NULL)
+      if (temp != NULL)
       {
-            if (root1->pinCode == s_ele)
+            if (temp->pinCode == searchElement)
             {
-                  if (option < 0)
-                  {
-                        printNgo(root1);
-                        bufferForSearchFun++;
-                        noDataFlag = 0;
-                        s_ele = s_ele + 0.00001;
-                        if (option == -2)
-                              push(root1->uniqueID);
-                        return search(root1->right, s_ele, option);
-                  }
+                  printNgo(temp);
+                  bufferForSearchFun++;
+                  searchElement = searchElement + 0.00001;
+                  return search(temp->right, searchElement);
             }
-            if (root1->pinCode < s_ele)
+            if (temp->pinCode < searchElement)
             {
-                  return search(root1->right, s_ele, option);
+                  return search(temp->right, searchElement);
             }
             else
             {
-                  return search(root1->left, s_ele, option);
+                  return search(temp->left, searchElement);
             }
       }
       if (bufferForSearchFun == 0)
       {
             printf("\n No such Data");
             noDataFlag = 1;
-            if (option == -2)
-                  press(0);
       }
-      return root1;
+      return temp;
 }
 
 struct NgoInfo *searchParent()
@@ -734,7 +729,7 @@ struct NgoInfo *searchParent()
       loading(8, 150);
       printf("\n");
       bufferForSearchFun = 0;
-      search(root, s_ele, -1);
+      search(root, s_ele);
       press(0);
       return NULL;
 }
@@ -787,67 +782,31 @@ long pop()
       return temp;
 }
 
-struct NgoInfo *deleteNode(struct NgoInfo *root1, long s_ele)
-{
-      struct NgoInfo *current = NULL, *pointer = NULL, *successor = NULL, *parent = NULL;
-      if (root1 == NULL)
-            return root1;
-      current = root1;
-      if (current->left == NULL)
-            pointer = current->right;
-      else if (current->right == NULL)
-      {
-            pointer = current->left;
-      }
-      else
-      {
-            successor = current->right;
-            while (successor->left != NULL)
-            {
-                  successor = successor->left;
-            }
-            successor->left = current->left;
-            pointer = current->right;
-      }
-      if (parent->left == current)
-            parent->left = pointer;
-      else
-            parent->right = pointer;
-      printf("\nThe below NGO information was successfully deleted: \n\n");
-      printNgo(current);
-      free(current);
-      press(0);
-      printTree();
-      root = NULL;
-      createTree(-1);
-      return root1;
-}
-
 struct NgoInfo *tempDeleteSibling(struct NgoInfo *temp, long uniqueID, double pinCode)
+
 {
       if (temp != NULL)
       {
             if (temp->pinCode == pinCode)
             {
                   pinCode = pinCode + 0.00001;
-                  return search(temp->right, uniqueID, pinCode);
+                  return tempDeleteSibling(temp->right, uniqueID, pinCode);
                   if (temp->uniqueID = uniqueID)
                         return temp;
             }
             if (temp->pinCode < pinCode)
             {
-                  return search(temp->right, uniqueID, pinCode);
+                  return tempDeleteSibling(temp->right, uniqueID, pinCode);
             }
             else
             {
-                  return search(temp->left, uniqueID, pinCode);
+                  return tempDeleteSibling(temp->left, uniqueID, pinCode);
             }
       }
-      printf("No such data");
       return temp;
 }
 
-struct NgoInfo *deleteNodeParent2(struct NgoInfo *root1, long u_ele)
+struct NgoInfo *deleteNodeParent2(long uniqueID, double pinCode)
 {
       char choice;
       do
@@ -856,7 +815,7 @@ struct NgoInfo *deleteNodeParent2(struct NgoInfo *root1, long u_ele)
             choice = getche();
             if (choice == 'y' || choice == 'Y')
             {
-                  deleteNode(root2, u_ele);
+
                   break;
             }
             else if (choice == 'n' || choice == 'N')
@@ -877,49 +836,6 @@ struct NgoInfo *deleteNodeParent2(struct NgoInfo *root1, long u_ele)
 
 struct NgoInfo *deleteNodeParent1(struct NgoInfo *root1)
 {
-      int flag = 0;
-      int i = top;
-      double d_ele;
-      long u_ele;
-      long stack_ele;
-      char choice;
-
-      char tempPinCode[10];
-      title();
-      printf("\nEnter the pin code to be deleted: ");
-      gets(tempPinCode);
-      d_ele = numberChecker(tempPinCode, 3);
-      bufferForSearchFun = 0;
-      search(root, d_ele, -2);
-      if (noDataFlag == 1)
-      {
-            printf("\nNo Such Data");
-            press(0);
-            adminMainMenu(admin_name);
-      }
-      else if (noDataFlag != 1)
-      {
-            printf("\nNow enter the Unique ID of the NGO from the above list: ");
-            scanf("%ld", &u_ele);
-            while (top != -1 && flag == 0)
-            {
-                  stack_ele = pop();
-                  if (u_ele == stack_ele)
-                  {
-                        deleteNodeParent2(root2, u_ele);
-                        flag++;
-                  }
-            }
-            if (top == -1 && flag == 0)
-            {
-                  printf("\n\n\nWrong Unique ID entered");
-                  press(0);
-            }
-      }
-      while (top != -1)
-      {
-            pop();
-      }
 }
 
 long randomNumberGenerator()
