@@ -78,11 +78,11 @@ struct NgoInfo *rootOfDeleteTree = NULL; //Root node for the Deletion Tree
 
 //Files containing the database
 FILE *fptr1;
-char fname1[100] = "ngo_data.db"; //file which stores the NGO information
+char fname1[100] = "00-NGODatabase.db"; //file which stores the NGO information
 FILE *fptr2;
-char fname2[100] = "admin_log.db"; //file which stores the admin log in information
+char fname2[100] = "01-adminDatabase.db"; //file which stores the admin log in information
 FILE *fptr3;
-char fname3[100] = "user_log.db"; //file which stores the user log in information
+char fname3[100] = "02-userDatabase.db"; //file which stores the user log in information
 
 //Global Variables
 
