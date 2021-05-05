@@ -7,6 +7,22 @@
 #include <time.h>
 #include <malloc.h>
 
+//Structure which holds the NGO data
+struct NgoInfo
+{
+
+      int count;                   //increased when duplicates are inserted to the tree
+      double pinCode;              //Pincode of the NGO
+      long uniqueID;               //Unique ID generated for a particular NGO
+      char name[100];              //Name of the NGO
+      char address[300];           //Address of the NGO
+      char ownerName[100];         //Owner Name of the NGO
+      char contactInformation[50]; //Contact information of the NGO
+
+      struct NgoInfo *left;  //left link for the tree
+      struct NgoInfo *right; //right link for the tree
+};
+
 //General Functions
 void welcome();                  //Func to display the welcome message during the beginning of the execution
 void title();                    //Func to display the title of the project used as a header
@@ -55,22 +71,6 @@ long pop();
 //Adding the new data into DataBase
 void printDataToFile(FILE *, struct NgoInfo *);
 void printTree();
-
-//Structure which holds the NGO data
-struct NgoInfo
-{
-
-      int count;                   //increased when duplicates are inserted to the tree
-      double pinCode;              //Pincode of the NGO
-      long uniqueID;               //Unique ID generated for a particular NGO
-      char name[100];              //Name of the NGO
-      char address[300];           //Address of the NGO
-      char ownerName[100];         //Owner Name of the NGO
-      char contactInformation[50]; //Contact information of the NGO
-
-      struct NgoInfo *left;  //left link for the tree
-      struct NgoInfo *right; //right link for the tree
-};
 
 //Root Node of the two trees
 struct NgoInfo *root = NULL;             //Root node for the search Tree
