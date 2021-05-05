@@ -87,7 +87,7 @@ char fname3[100] = "02-userDatabase.db"; //file which stores the user log in inf
 //Global Variables
 
 //Stack Variables
-long *stack, size = 5; //stack size of 5
+long *stack, size = 5; //default stack size of 5
 int top = -1;          //top pointer for the stack
 
 char adminName[25], userName[25]; //Variables to store the name of the current user
@@ -116,11 +116,11 @@ int main()
 
       //allocating memory for stack
       stack = (long *)calloc(size, sizeof(long));
+
       //Functions that will load the data from the database to the Main Memory
       createTree(-1);
       createTree(1);
-      press(0);
-      //Calls the Login function through which the user logins
+      //Calls the Login function through which the  logins
       logIn();
       //deletes the root node of the functions
       free(root);
@@ -133,14 +133,14 @@ void welcome()
       //prints welcome window
       system("cls");
       gotoXY(45, 9);
-      int i, j;
-      for (i = 0; i < 2; i++)
+      int row, col;
+      for (row = 0; row < 2; row++)
       {
-            for (j = 0; j < 43; j++)
+            for (col = 0; col < 43; col++)
             {
                   printf("%c", 205);
             }
-            if (i == 0)
+            if (row == 0)
             {
                   gotoXY(45, 10);
                   printf("%c\t\t      Welcome to\t\t%c", 186, 186);
@@ -158,6 +158,7 @@ void welcome()
 
 void title()
 {
+      //prints the title for every page
       int i;
       system("cls");
       for (i = 0; i < 144; i++)
@@ -171,9 +172,10 @@ void title()
       }
 }
 
-void press(int n)
+void press(int noOfLine)
 {
-      for (int i = 0; i < n; i++)
+      //function to print press any key after few lines
+      for (int i = 0; i < noOfLine; i++)
       {
             printf("\n");
       }
@@ -184,60 +186,81 @@ void press(int n)
 
 void gotoXY(int x, int y)
 {
+      //moves the cursor to the given x and y position when called
       coord.X = x;
       coord.Y = y;
       SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-void loading(int n, int val)
+void loading(int noOfDOts, int timeValue)
 {
+      //function to mimic the loading animation
       int i;
-      for (i = 0; i <= n; ++i)
+      for (i = 0; i <= noOfDOts; i++)
       {
             printf(".");
-            Sleep(val);
+            Sleep(timeValue);
       }
 }
 
-void printNgo(struct NgoInfo *temp)
+void printNgo(struct NgoInfo *structurePointer)
 {
-      printf("\n\tPIN CODE:        %.lf", temp->pinCode);
-      printf("\n\tUnique ID:       %ld", temp->uniqueID);
-      printf("\n\tNGO name:        %s", replace(temp->name, '_', ' '));
-      printf("\n\tNGO address:     %s", replace(temp->address, '_', ' '));
-      printf("\n\tNGO owner name:  %s", replace(temp->ownerName, '_', ' '));
-      printf("\n\tNGO Phone no.    %s", replace(temp->contactInformation, '_', ' '));
+      //function to print the ngo value passed
+      //the replace function is to hide the underscores used in the database
+      printf("\n\tPIN CODE:        %.lf", structurePointer->pinCode);
+      printf("\n\tUnique ID:       %ld", structurePointer->uniqueID);
+      printf("\n\tNGO name:        %s", replace(structurePointer->name, '_', ' '));
+      printf("\n\tNGO address:     %s", replace(structurePointer->address, '_', ' '));
+      printf("\n\tNGO owner name:  %s", replace(structurePointer->ownerName, '_', ' '));
+      printf("\n\tNGO Phone no.    %s", replace(structurePointer->contactInformation, '_', ' '));
       printf("\n\n");
 }
 
-char *replace(char *string, char to_replace, char replaced_by)
+/**
+ * @brief the function will take three arguments
+ * passedString holds the string which will be passed
+ * toReplace holds the char which has to be replaced in the string
+ * replaceBy holds the char which will be replaced 
+ * it returns the new string
+ */
+char *replace(char *passedString, char toReplace, char replaceBy)
 {
-      char *new_string = (char *)calloc(300, sizeof(char));
+      //i to traverse through the string
+      //j holds the position of the last char
       int i, j = 0;
-      for (i = 0; i <= strlen(string); i++)
+
+      //we allocate memory to the string dynamically
+      char *newString = (char *)calloc(300, sizeof(char));
+
+      for (i = 0; i <= strlen(passedString); i++)
       {
-            if (string[i] == to_replace)
+            //replaces when the to replace is matched
+            if (passedString[i] == toReplace)
             {
-                  new_string[j] = replaced_by;
+                  newString[j] = replaceBy;
                   j++;
             }
-            else if (isalnum(string[i]) || ispunct(string[i]))
+            //doesn't replace if it is the alphabet or number or a punctuation such as . and ,
+            else if (isalnum(passedString[i]) || ispunct(passedString[i]))
             {
-                  new_string[j] = string[i];
+                  newString[j] = passedString[i];
                   j++;
             }
+            //else replaces any criteria if it doesn't match
             else
             {
-                  new_string[j] = replaced_by;
+                  newString[j] = replaceBy;
                   j++;
             }
       }
-      new_string[j] = '\0';
-      return new_string;
+      //adds the null char at the end of the string so that new array becomes a string
+      newString[j] = '\0';
+      return newString;
 }
 
 long randomNumberGenerator()
 {
+      //generates a random number using the time constant
       unsigned long number;
       time_t seconds;
       seconds = time(NULL);
