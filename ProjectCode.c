@@ -73,7 +73,7 @@ void printDataToFile(FILE *, struct NgoInfo *);
 void printTree();
 
 //Root Node of the two trees
-struct NgoInfo *root = NULL;             //Root node for the search Tree
+struct NgoInfo *rootOfSearchTree = NULL; //Root node for the search Tree
 struct NgoInfo *rootOfDeleteTree = NULL; //Root node for the Deletion Tree
 
 //Files containing the database
@@ -123,7 +123,7 @@ int main()
       //Calls the Login function through which the  logins
       logIn();
       //deletes the root node of the functions
-      free(root);
+      free(rootOfSearchTree);
       free(rootOfDeleteTree);
       return 0;
 }
@@ -647,18 +647,18 @@ void createTree(int option)
       }
 }
 
-struct NgoInfo *insert(struct NgoInfo *tempPointer, int option)
+struct NgoInfo *insert(struct NgoInfo *temp, int option)
 {
       switch (option)
       {
             //delete tree
       case 1:
-            tempPointer->left = NULL;
-            tempPointer->right = NULL;
-            tempPointer->count = 1;
+            temp->left = NULL;
+            temp->right = NULL;
+            temp->count = 1;
             if (rootOfDeleteTree == NULL)
             {
-                  rootOfDeleteTree = tempPointer;
+                  rootOfDeleteTree = temp;
                   rootOfDeleteTree->left = NULL;
                   rootOfDeleteTree->right = NULL;
             }
@@ -669,11 +669,11 @@ struct NgoInfo *insert(struct NgoInfo *tempPointer, int option)
                   while (cur != NULL)
                   {
                         ptr = cur;
-                        if (tempPointer->uniqueID == cur->uniqueID)
+                        if (temp->uniqueID == cur->uniqueID)
                         {
-                              tempPointer->uniqueID = randomNumberGenerator();
+                              temp->uniqueID = randomNumberGenerator();
                         }
-                        if (tempPointer->uniqueID < cur->uniqueID)
+                        if (temp->uniqueID < cur->uniqueID)
                         {
                               cur = cur->left;
                         }
@@ -682,41 +682,41 @@ struct NgoInfo *insert(struct NgoInfo *tempPointer, int option)
                               cur = cur->right;
                         }
                   }
-                  if (tempPointer->uniqueID < ptr->uniqueID)
+                  if (temp->uniqueID < ptr->uniqueID)
                   {
-                        ptr->left = tempPointer;
+                        ptr->left = temp;
                   }
                   else
                   {
-                        ptr->right = tempPointer;
+                        ptr->right = temp;
                   }
             }
             return rootOfDeleteTree;
             break;
       case -1:
             //search tree
-            tempPointer->left = NULL;
-            tempPointer->right = NULL;
-            tempPointer->count = 1;
-            if (root == NULL)
+            temp->left = NULL;
+            temp->right = NULL;
+            temp->count = 1;
+            if (rootOfSearchTree == NULL)
             {
-                  root = tempPointer;
-                  root->left = NULL;
-                  root->right = NULL;
+                  rootOfSearchTree = temp;
+                  rootOfSearchTree->left = NULL;
+                  rootOfSearchTree->right = NULL;
             }
             else
             {
-                  struct NgoInfo *cur = root;
+                  struct NgoInfo *cur = rootOfSearchTree;
                   struct NgoInfo *ptr = NULL;
                   while (cur != NULL)
                   {
                         ptr = cur;
-                        if (tempPointer->pinCode == cur->pinCode)
+                        if (temp->pinCode == cur->pinCode)
                         {
-                              tempPointer->pinCode = tempPointer->pinCode + 0.00001;
-                              tempPointer->count = tempPointer->count + 1;
+                              temp->pinCode = temp->pinCode + 0.00001;
+                              temp->count = temp->count + 1;
                         }
-                        if (tempPointer->pinCode < cur->pinCode)
+                        if (temp->pinCode < cur->pinCode)
                         {
                               cur = cur->left;
                         }
@@ -725,16 +725,16 @@ struct NgoInfo *insert(struct NgoInfo *tempPointer, int option)
                               cur = cur->right;
                         }
                   }
-                  if (tempPointer->pinCode < ptr->pinCode)
+                  if (temp->pinCode < ptr->pinCode)
                   {
-                        ptr->left = tempPointer;
+                        ptr->left = temp;
                   }
                   else
                   {
-                        ptr->right = tempPointer;
+                        ptr->right = temp;
                   }
             }
-            return root;
+            return rootOfSearchTree;
             break;
       }
 }
@@ -777,20 +777,17 @@ struct NgoInfo *search(struct NgoInfo *root1, double s_ele, int option)
 
 struct NgoInfo *searchParent()
 {
-      system("cls");
       title();
       char tempPinCode[10];
-      char choice;
-      int i;
-      double s_ele;
+      double searchElement;
       printf("\n Enter the Pin Code: ");
       gets(tempPinCode);
-      s_ele = numberChecker(tempPinCode, -1);
+      searchElement = numberChecker(tempPinCode, -1); //the numberchecker to makesure that the values entered are only of number
       printf("\nSearching");
       loading(8, 150);
       printf("\n");
       bufferForSearchFun = 0;
-      search(root, s_ele, -1);
+      search(rootOfSearchTree, searchElement, -1);
       press(0);
       return NULL;
 }
@@ -856,7 +853,7 @@ struct NgoInfo *deleteNode(struct NgoInfo *tempRoot, long s_ele)
       free(current);
       press(0);
       printTree();
-      root = NULL;
+      rootOfSearchTree = NULL;
       createTree(-1);
       return tempRoot;
 }
@@ -902,7 +899,7 @@ void deleteNodeGrandParent()
       gets(tempPinCode);
       deletePincode = numberChecker(tempPinCode, 3);
       bufferForSearchFun = 0;
-      search(root, deletePincode, -2);
+      search(rootOfSearchTree, deletePincode, -2);
       if (noDataFlag == 1)
       {
             printf("\nNo Such Data");
@@ -938,8 +935,8 @@ void printDataToFile(FILE *fptr1, struct NgoInfo *tempPointer)
 {
       if (tempPointer == NULL)
             return;
-      fprintf(fptr1, "\n%.lf\n%ld\n%s\n%s\n%s\n%s\n",
-              tempPointer->pinCode, tempPointer->uniqueID, tempPointer->name, tempPointer->address, tempPointer->ownerName, tempPointer->contactInformation);
+      //printf the values of the tree into the data-base after the deletion
+      fprintf(fptr1, "\n%.lf\n%ld\n%s\n%s\n%s\n%s\n",tempPointer->pinCode, tempPointer->uniqueID, tempPointer->name, tempPointer->address, tempPointer->ownerName, tempPointer->contactInformation);
       printDataToFile(fptr1, tempPointer->left);
       printDataToFile(fptr1, tempPointer->right);
 }
